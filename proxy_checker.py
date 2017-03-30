@@ -10,7 +10,6 @@ def get_proxies():
     return proxies
 
 def save_proxies():
-    #Saves available usernames
     proxies = outputbox_box.get(0.0, END)
     proxies = proxies.strip()
     outputfile = save_entry.get()
