@@ -9,6 +9,14 @@ def get_proxies():
     proxies = proxies.split('\n')
     return proxies
 
+def save_proxies():
+    #Saves available usernames
+    proxies = outputbox_box.get(0.0, END)
+    proxies = proxies.strip()
+    outputfile = save_entry.get()
+    with open(outputfile, "a") as a:
+        a.write(proxies)
+
 def update(proxy):
     try:
         outputbox_box.insert(END, proxy+'\n')
@@ -54,7 +62,6 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
 
     master = Tk()
-    master.configure(background='black')
     master.wm_title('Proxy Checker')
 
     entrybox_label = Label(master, text='Proxies to Check')
@@ -64,7 +71,7 @@ if __name__ == '__main__':
     start_button = Button(master, text='Start', command=lambda: start(), width=15, highlightthickness=0)
     stop_button = Button(master, text='Stop', command=lambda: stop(), width=15, highlightthickness=0)
     save_entry = Entry(master, justify='center', width=17, highlightthickness=0)
-    save_button = Button(master, text='Save', command=lambda: save(), width=15, highlightthickness=0)
+    save_button = Button(master, text='Save', command=lambda: save_proxies(), width=15, highlightthickness=0)
 
     save_entry.insert(0, 'filename.txt')
 

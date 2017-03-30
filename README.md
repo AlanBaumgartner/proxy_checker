@@ -4,7 +4,7 @@ Asynchronously checks if proxies are working.
 
 ## Usage
 
-![alt tag](http://url/to/img.png)
+![alt tag](http://i.imgur.com/BZtFseS.png)
 
 ## License
 
