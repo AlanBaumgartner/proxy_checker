@@ -79,9 +79,9 @@ if __name__ == '__main__':
     outputbox_label.grid(row=0,column=1, padx=(5, 10), pady=(10,5))
     entrybox_box.grid(row=1,column=0, padx=(10, 5), pady=(0,10))
     outputbox_box.grid(row=1,column=1, padx=(5, 10), pady=(0,10))
-    start_button.grid(row=2, column=0)
+    start_button.grid(row=2, column=0, pady=(0,10))
     stop_button.grid(row=3, column=0, pady=(0,10))
-    save_entry.grid(row=2, column=1)
+    save_entry.grid(row=2, column=1, pady=(0,10))
     save_button.grid(row=3, column=1, pady=(0,10))
 
     mainloop()
