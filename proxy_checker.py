@@ -84,6 +84,8 @@ class App():
                 self.progress['maximum'] = len(proxies)
                 tasks = [self.check_proxies(proxy, orginal_ip, session, sem, lock) for proxy in proxies]
                 await asyncio.gather(*tasks)
+                self.outputbox_box.delete(INSERT)
+                self.outputbox_box.see(END)
                 self.running = False
 
     def start(self):
