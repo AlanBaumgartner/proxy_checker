@@ -8,6 +8,7 @@ class App():
     def __init__(self, root):
         master = root
         master.wm_title('Proxy Checker')
+        master.resizable(False, False)
 
         self.entrybox_label = Label(master, text='Proxies to Check')
         self.outputbox_label = Label(master, text='Working Proxies')
@@ -19,9 +20,9 @@ class App():
         self.save_button = Button(master, text='Save', command=self.save_proxies, width=15, highlightthickness=0)
 
         s = ttk.Style()
-        s.theme_use('clam')
-        s.configure("red.Horizontal.TProgressbar", foreground='red', background='red')
-        self.progress = ttk.Progressbar(master, style="red.Horizontal.TProgressbar", orient="horizontal", mode="determinate", length=450)
+        s.theme_use('default')
+        s.configure("skin.Horizontal.TProgressbar")#, background='green')
+        self.progress = ttk.Progressbar(master, style="skin.Horizontal.TProgressbar", orient="horizontal", mode="determinate", length=450)
 
         self.save_entry.insert(0, 'filename.txt')
 
@@ -58,21 +59,21 @@ class App():
 
     async def check_proxies(self, proxy, orginal_ip, session, sem, lock):
         async with sem:
-                if self.running:
-                    try:
-                        async with session.get(self.URL, proxy=proxy, timeout=3) as resp:
-                            response = (await resp.read()).decode()
-                            if response != orginal_ip:
-                                self.outputbox_box.insert(END, proxy+'\n')
-                                self.outputbox_box.see(END)
-                                
-                    except:
-                        pass
+            if self.running:
+                try:
+                    async with session.get(self.URL, proxy=proxy, timeout=3) as resp:
+                        response = (await resp.read()).decode()
+                        if response != orginal_ip:
+                            self.outputbox_box.insert(END, proxy+'\n')
+                            self.outputbox_box.see(END)
+                            
+                except:
+                    pass
 
-                    finally:
-                        with await lock:
-                            self.count += 1
-                        self.progress['value'] = self.count
+                finally:
+                    with await lock:
+                        self.count += 1
+                    self.progress['value'] = self.count
 
     async def main(self):
         sem = asyncio.BoundedSemaphore(50)
@@ -84,14 +85,14 @@ class App():
                 self.progress['maximum'] = len(proxies)
                 tasks = [self.check_proxies(proxy, orginal_ip, session, sem, lock) for proxy in proxies]
                 await asyncio.gather(*tasks)
+                self.running = False
 
     def start(self):
-        if self.running:
-            self.stop()
-        self.count = 0
-        self.progress['value'] = self.count
-        self.running = True
-        self.startcheck()
+        if not self.running:
+            self.count = 0
+            self.progress['value'] = self.count
+            self.running = True
+            self.startcheck()
 
     def stop(self):
         self.running = False
