@@ -1,6 +1,6 @@
 import asyncio, aiohttp, sys, threading
 from tkinter import *
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, scrolledtext
 
 __author__ = 'Alan Baumgartner'
 
@@ -12,8 +12,8 @@ class App():
 
         self.entrybox_label = Label(master, text='Proxies to Check')
         self.outputbox_label = Label(master, text='Working Proxies')
-        self.entrybox_box = Text(master, width=30, height=20, borderwidth=5, relief=SUNKEN, highlightthickness=0)
-        self.outputbox_box = Text(master, width=30, height=20, borderwidth=5, relief=SUNKEN, highlightthickness=0)
+        self.entrybox_box = scrolledtext.ScrolledText(master, width=30, height=20, borderwidth=5, relief=SUNKEN, highlightthickness=0)
+        self.outputbox_box = scrolledtext.ScrolledText(master, width=30, height=20, borderwidth=5, relief=SUNKEN, highlightthickness=0)
         self.start_button = Button(master, text='Start', command=self.start, width=15, highlightthickness=0)
         self.stop_button = Button(master, text='Stop', command=self.stop, width=15, highlightthickness=0)
         self.save_entry = Entry(master, justify='center', width=17, highlightthickness=0)
@@ -22,7 +22,7 @@ class App():
         s = ttk.Style()
         s.theme_use('default')
         s.configure("skin.Horizontal.TProgressbar")#, background='green')
-        self.progress = ttk.Progressbar(master, style="skin.Horizontal.TProgressbar", orient="horizontal", mode="determinate", length=450)
+        self.progress = ttk.Progressbar(master, style="skin.Horizontal.TProgressbar", orient="horizontal", mode="determinate", length=480)
 
         self.save_entry.insert(0, 'filename.txt')
 
@@ -35,7 +35,6 @@ class App():
         self.save_entry.grid(row=2, column=1, pady=(0,10))
         self.save_button.grid(row=3, column=1, pady=(0,10))
         self.progress.grid(row=4,column=0, columnspan=2, pady=(0,10))
-        
 
         master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
