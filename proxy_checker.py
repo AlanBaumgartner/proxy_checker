@@ -54,7 +54,6 @@ class App():
                     response = (await resp.read()).decode()
                     if response != orginal_ip:
                         self.outputbox_box.insert(END, proxy+'\n')
-                        master.update()
                         self.outputbox_box.see(END)
         except Exception:
             pass
@@ -65,7 +64,7 @@ class App():
             async with session.get(self.URL) as resp:
                 orginal_ip = (await resp.read()).decode()
                 proxies = self.get_proxies()
-                #NOTE TO SELF, FIX SHIT BELOW
+                #FIX CALLING, DOESNT STOP WITH THREAD
                 tasks = [self.check_proxies(proxy, orginal_ip, session, sem) for proxy in proxies]
                 await asyncio.gather(*tasks) 
 
