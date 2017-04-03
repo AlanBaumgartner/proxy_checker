@@ -1,4 +1,4 @@
-import sys, time, aiohttp, asyncio
+import sys, aiohttp, asyncio
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QTextEdit, QLabel, QLineEdit, QProgressBar
 from PyQt5.QtGui import QIcon
 from PyQt5 import QtCore
