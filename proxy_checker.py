@@ -9,7 +9,7 @@ class ImportDialog(QDialog):
         super().__init__()
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowTitle('Import usernames')
+        self.setWindowTitle('Import Proxies')
         layout = QGridLayout()
 
         self.file_label = QLabel('Filename')
@@ -42,7 +42,7 @@ class ExportDialog(QDialog):
         super().__init__()
         self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowTitle('Export usernames')
+        self.setWindowTitle('Export Proxies')
         layout = QGridLayout()
 
         self.file_label = QLabel('Filename')
@@ -140,11 +140,11 @@ class App(QMainWindow):
 
         menu = menu_bar.addMenu("File")
 
-        import_action = QAction("Import Usernames", self)
-        import_action.triggered.connect(self.import_usernames)
+        import_action = QAction("Import Proxies", self)
+        import_action.triggered.connect(self.import_proxies)
 
-        export_action = QAction("Export Usernames", self)
-        export_action.triggered.connect(self.export_usernames)
+        export_action = QAction("Export Proxies", self)
+        export_action.triggered.connect(self.export_proxies)
 
         quit_action = QAction("Close", self)
         quit_action.triggered.connect(self.quit)
@@ -202,8 +202,7 @@ class App(QMainWindow):
     def update_progress(self, val):
         self.progress_bar.setValue(val)
 
-    #Saves usernames from the output text.
-    def export_usernames(self):
+    def export_proxies(self):
         exportDialog = ExportDialog()
         filename, result = exportDialog.getFileInfo()
         if result:
@@ -217,7 +216,7 @@ class App(QMainWindow):
         else:
             pass
 
-    def import_usernames(self):
+    def import_proxies(self):
         importDialog = ImportDialog()
         filename, result = importDialog.getFileInfo()
         if result:
