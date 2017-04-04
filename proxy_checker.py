@@ -1,15 +1,78 @@
 import sys, aiohttp, asyncio
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QTextEdit, QLabel, QLineEdit, QProgressBar
-from PyQt5.QtGui import QIcon
-from PyQt5 import QtCore
-from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 __author__ = 'Alan Baumgartner'
 
+class ImportDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowTitle('Import usernames')
+        layout = QGridLayout()
+
+        self.file_label = QLabel('Filename')
+        self.file_text = QLineEdit()
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+            Qt.Horizontal, self)
+
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addWidget(self.file_label, 0, 0)
+        layout.addWidget(self.file_text, 0, 1)
+
+        layout.addWidget(buttons, 1, 0, 2, 0)
+
+        self.setLayout(layout)
+        self.setGeometry(400, 400, 300, 60)
+
+    @staticmethod
+    def getFileInfo():
+        dialog = ImportDialog()
+        result = dialog.exec_()
+        return dialog.file_text.text(), result == QDialog.Accepted
+
+
+class ExportDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(self.windowFlags() ^ Qt.WindowContextHelpButtonHint)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowTitle('Export usernames')
+        layout = QGridLayout()
+
+        self.file_label = QLabel('Filename')
+        self.file_text = QLineEdit()
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
+            Qt.Horizontal, self)
+
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addWidget(self.file_label, 0, 0)
+        layout.addWidget(self.file_text, 0, 1)
+
+        layout.addWidget(buttons, 1, 0, 2, 0)
+
+        self.setLayout(layout)
+        self.setGeometry(400, 400, 300, 60)
+
+    @staticmethod
+    def getFileInfo():
+        dialog = ExportDialog()
+        result = dialog.exec_()
+        return dialog.file_text.text(), result == QDialog.Accepted
+
 class Checker(QThread):
 
-    update = QtCore.pyqtSignal(object)
-    pupdate = QtCore.pyqtSignal(object)
+    update = pyqtSignal(object)
+    pupdate = pyqtSignal(object)
     count = 0
 
     URL = 'http://check-host.net/ip'
@@ -48,15 +111,15 @@ class Checker(QThread):
                 tasks = [self.check_proxies(proxy, orginal_ip, session, sem, lock) for proxy in proxies]
                 await asyncio.gather(*tasks)
 
-class App(QWidget):
+class App(QMainWindow):
  
     def __init__(self):
 
         #Declare some shit
         super().__init__()
         self.title = 'Proxy Checker'
-        self.left = 10
-        self.top = 10
+        self.left = 300
+        self.top = 300
         self.width = 500
         self.height = 500
         self.initUI()
@@ -64,33 +127,46 @@ class App(QWidget):
     def initUI(self):
 
         #Setup layout
+        wid = QWidget(self)
+        self.setCentralWidget(wid)
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
  
         layout = QGridLayout()
-        self.setLayout(layout)
+        wid.setLayout(layout)
  
         #Create Widgets
+        menu_bar = self.menuBar()
+
+        menu = menu_bar.addMenu("File")
+
+        import_action = QAction("Import Usernames", self)
+        import_action.triggered.connect(self.import_usernames)
+
+        export_action = QAction("Export Usernames", self)
+        export_action.triggered.connect(self.export_usernames)
+
+        quit_action = QAction("Close", self)
+        quit_action.triggered.connect(self.quit)
+
+        menu.addAction(import_action)
+        menu.addAction(export_action)
+        menu.addAction(quit_action)
+
         self.start_button = QPushButton('Start')
         self.start_button.clicked.connect(self.start_clicked)
 
         self.stop_button = QPushButton('Stop')
         self.stop_button.clicked.connect(self.stop_clicked)
 
-        self.save_button = QPushButton('Save')
-        self.save_button.clicked.connect(self.save_clicked)
-
         self.input_text = QTextEdit()
         self.output_text = QTextEdit()
 
         self.input_label = QLabel('Proxies to Check')
-        self.input_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.input_label.setAlignment(Qt.AlignCenter)
 
         self.output_label = QLabel('Working Proxies')
-        self.output_label.setAlignment(QtCore.Qt.AlignCenter)
-
-        self.save_entry = QLineEdit('Textfile.txt')
-        self.save_entry.setAlignment(QtCore.Qt.AlignCenter)
+        self.output_label.setAlignment(Qt.AlignCenter)
 
         self.progress_bar = QProgressBar()
  
@@ -100,11 +176,10 @@ class App(QWidget):
         layout.addWidget(self.input_text, 1, 0)
         layout.addWidget(self.output_text, 1, 1)
         layout.addWidget(self.start_button, 2, 0)
-        layout.addWidget(self.save_entry, 2, 1)
-        layout.addWidget(self.stop_button, 3, 0)
-        layout.addWidget(self.save_button, 3, 1)
-        layout.addWidget(self.progress_bar, 4, 0, 5, 0)
+        layout.addWidget(self.stop_button, 2, 1)
+        layout.addWidget(self.progress_bar, 3, 0, 4, 0)
 
+    #When start button is clicked, start the QThread to check for proxies
     def start_clicked(self):
         proxies = get_proxies()
         self.progress_bar.setMaximum(len(proxies))
@@ -114,14 +189,12 @@ class App(QWidget):
         self.thread.pupdate.connect(self.update_progress)
         self.thread.start()
 
+    #When stop button is clicked, terminate the thread
     def stop_clicked(self):
         try:
             self.thread.terminate()
         except:
             pass
-
-    def save_clicked(self):
-        self.save_proxies()
  
     def update_text(self, text):
         self.output_text.append(str(text))
@@ -129,12 +202,36 @@ class App(QWidget):
     def update_progress(self, val):
         self.progress_bar.setValue(val)
 
-    def save_proxies(self):
-        proxies = self.output_text.toPlainText()
-        proxies = proxies.strip()
-        outputfile = self.save_entry.text()
-        with open(outputfile, "a") as a:
-            a.write(proxies)
+    #Saves usernames from the output text.
+    def export_usernames(self):
+        exportDialog = ExportDialog()
+        filename, result = exportDialog.getFileInfo()
+        if result:
+            try:
+                proxies = self.output_text.toPlainText()
+                proxies = proxies.strip()
+                with open(filename, "w") as a:
+                    a.write(proxies)
+            except:
+                pass
+        else:
+            pass
+
+    def import_usernames(self):
+        importDialog = ImportDialog()
+        filename, result = importDialog.getFileInfo()
+        if result:
+            try:
+                with open(filename, "r") as f:
+                    out = f.read()
+                    self.input_text.setText(out)
+            except:
+                pass
+        else:
+            pass
+
+    def quit(self):
+        sys.exit()
 
 if __name__ == '__main__':
 
